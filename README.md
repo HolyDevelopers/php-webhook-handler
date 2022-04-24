@@ -41,6 +41,8 @@ You can configure endpoints for different branches, for instance if you
 use different branches for development/production etc.
 
 Set **endpoint.run** to the path of your update script like ``/path/to/update/script.sh``.
+If you want no action to be taken (because you have more than one branch and want automatic
+deployment only for one of them), leave it empty.
 
 For clarity, describe what happened under **endpoint.description**.
 It will be used as subject in notification emails. This is especially
@@ -71,7 +73,7 @@ If deploy scripts take longer than just some seconds, the following problems ari
 - If the deployment takes even longer you may run into real problems with your web server: If the script runs longer
   than what is configured in ``max_execution_time`` in ``php.ini`` (see [set_time_limit()](https://www.php.net/manual/de/function.set-time-limit.php)), Apache will silently kill it. A good web hoster will let you increase ``max_execution_time``
   but don't do that, you should rather look for a better, asynchronous deployment solution.
-  
+
 ### TODO
 Support GitLab as well. Should be [fairly similar](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html).
 The HTTP header for checking the secret is called ``X-Gitlab-Token``. Is the payload structure the same?

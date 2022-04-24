@@ -10,6 +10,8 @@
 $configFilename = '.ht.config.json';    // Some security: files starting with .ht are usually never served by apache
 
 function run($config, $repoConfig, $payload) {
+    if (empty($repoConfig['run']))
+        return
     $returnCode = -1;
     $output = null;
     exec($repoConfig['run'], $output, $returnCode);
