@@ -1,6 +1,7 @@
 #!/bin/bash
 repo="/path/to/my-repo"
 branch="main"
+drush="$repo/vendor/drush/drush/drush"
 
 # The environment of a shell script called by the web server may differ from
 # the environment when you log into your server with SSH. You may need to
@@ -32,29 +33,33 @@ git fetch
 if git status --porcelain --branch | grep -q behind; then
     echo "INFO: Deploying to $repo"
 
-    drush sset system.maintenance_mode 1
+    $drush sset system.maintenance_mode 1
 
-    drush cr	# cache rebuild
+    $drush cr	# cache rebuild
 
-    drush sql-dump --result-file=auto --gzip
+    $drush sql-dump --result-file=auto --gzip
+
+    chmod u+w web/sites/default     # git and composer may want to write to sites/default so enable write access
 
     git pull
 
-    #drush cim	# configuration import
+    #$drush cim	# configuration import
 
     # 2>&1 redirects STDERR to STDOUT so that you will see the complete output of the command
     composer install 2>&1	# install dependencies according to composer.lock
-    drush updb 2>&1         # run database scheme upgrades if necessary
+    chmod u-w web/sites/default     # permission hardening: remove write permissions again (usually already done by Drupal, but to be sure)
+
+    $drush updb 2>&1         # run database scheme upgrades if necessary
 
     # for localisation
-    #drush locale:check 2>&1 >| /dev/null
-    #drush locale:update
+    #$drush locale:check 2>&1 >| /dev/null
+    #$drush locale:update
 
-    drush cr 2>&1       	# cache rebuild again
+    $drush cr 2>&1       	# cache rebuild again
 
-    drush sset system.maintenance_mode 0
+    $drush sset system.maintenance_mode 0
 
-    #drush cex	# configuration export again (drush updb may have changed stuff -> just to be sure we want to have a backup)
+    #$drush cex	# configuration export again (drush updb may have changed stuff -> just to be sure we want to have a backup)
 
     #if [[ -n $(git status --porcelain) ]]; then
     #    git add config
