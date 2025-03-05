@@ -74,15 +74,18 @@ try {
                     break;
             }
         }
-        if (empty($repoConfig))
-            throw new Exception("No configuration found for {$payload->repository->url} on branch $branch");
-        if (!empty($repoConfig['secret'])) {
-            $hash = 'sha1=' . hash_hmac('sha1', $json, $repoConfig['secret']);
-            $headerHash = $_SERVER['HTTP_X_HUB_SIGNATURE'];
-            if (!hash_equals($hash, $headerHash))
-                throw new Exception("The recieved hash ($headerHash) doesn't match the computed one ($hash).");
-        } // else, there's no secret configured, we assume it's ok
-        run($config, $repoConfig, $payload);
+        if (!empty($repoConfig)) {
+            if (!empty($repoConfig['secret'])) {
+                $hash = 'sha1=' . hash_hmac('sha1', $json, $repoConfig['secret']);
+                $headerHash = $_SERVER['HTTP_X_HUB_SIGNATURE'];
+                if (!hash_equals($hash, $headerHash))
+                    throw new Exception("The recieved hash ($headerHash) doesn't match the computed one ($hash).");
+            } // else, there's no secret configured, we assume it's ok
+            run($config, $repoConfig, $payload);
+        } else {
+            // TODO make it configurable whether to send an email or not if we have no configuration for this repo and branch
+            // throw new Exception("No configuration found for {$payload->repository->url} on branch $branch");
+        }
     }
 
 } catch (Exception $e) {
