@@ -68,7 +68,7 @@ try {
         $branch = substr($payload->ref, 11);    // $payload->ref contains e.g. "refs/heads/main"
         foreach ($config['endpoints'] as $endpoint) {
             // check if we have a configuration for this repository and branch
-            if ($payload->repository->url == 'https://github.com/' . $endpoint['repo']
+            if ($payload->repository->html_url == 'https://github.com/' . $endpoint['repo']
                 && $branch == $endpoint['branch']) {
                     $repoConfig = $endpoint;
                     break;
@@ -83,6 +83,7 @@ try {
             } // else, there's no secret configured, we assume it's ok
             run($config, $repoConfig, $payload);
         } else {
+            echo "No configuration found for {$payload->repository->url} on branch $branch";
             // TODO make it configurable whether to send an email or not if we have no configuration for this repo and branch
             // throw new Exception("No configuration found for {$payload->repository->url} on branch $branch");
         }
